@@ -1,34 +1,30 @@
 const express = require('express');
-const mongodb = require('mongodb');
-
 const router = express.Router();
+const Exercise = require('../../../models/gym')
 
-router.get('/', async (req, res) => {
-  const exercises = await loadExerciseCollection();
-  res.send(await exercises.find({}).toArray())
+router.get('/exercises', function (req, res) {
+  Exercise.find({}).then(function(exercises){
+    res.send(exercises);
+  });
 });
 
-router.post('/', async (req, res) => {
-  const exercises = await loadExerciseCollection();
-  await exercises.insertOne({
-    title: req.body.title,
-    createdAt: new Date()
+router.post('/exercises', function (req, res) {
+  Exercise.create(req.body).then(function(exercises){
+    res.send(exercises);
   });
-  res.status(201).send();
-})
+});
 
-router.delete('/:id', async (req, res) =>{
-  const exercises = await loadExerciseCollection();
-  await exercises.deleteOne({_id: new mongodb.ObjectId(req.params.id)});
-  res.status(200).send();
-})
-
-async function loadExerciseCollection() {
-  const client = await mongodb.MongoClient.connect
-  ('mongodb://localhost:27017/gym', {
-    useNewParser: true
+router.put('/exercises/:id', function (req, res) {
+  Exercise.findOneAndUpdate({_id: req.params.id}, req.body).then(function(exercises) { Exercise.findOne({_id: req.params.id}).then(function(exercises){
+      res.send(exercises);
+    });
   });
-  return client.db('gym').collection('exercises');
-}
+});
+
+router.delete('/exercises/:id', function (req, res) {
+  Exercise.findOneAndDelete({_id: req.params.id}, req.body).then(function(exercises) {
+    res.send(exercises);
+  });
+});
 
 module.exports = router;

@@ -1,15 +1,17 @@
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
+
+mongoose.connect('mongodb://localhost/gym', {useNewUrlParser: true});
+mongoose.Promise = global.Promise;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-const exercises = require('./routes/api/exercises');
-
-app.use('/api/exercises', exercises)
+app.use('/api', require('./routes/api/exercises'));
 
 const port = process.env.PORT || 3000;
 
